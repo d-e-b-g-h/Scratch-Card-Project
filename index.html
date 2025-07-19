@@ -1,16 +1,490 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Scratch Card Reward</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scratch & Win Lucky Rewards</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #4285f4;
+            --secondary: #34a853;
+            --accent: #fbbc05;
+            --dark: #202124;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .card-container {
+            perspective: 1000px;
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .card {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            transform-style: preserve-3d;
+            transition: all 0.8s ease;
+        }
+        
+        .card.scratched {
+            transform: rotateY(180deg);
+        }
+        
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .front {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            justify-content: space-between;
+        }
+        
+        .back {
+            background: white;
+            transform: rotateY(180deg);
+            color: var(--dark);
+        }
+        
+        .scratch-area {
+            position: relative;
+            width: 90%;
+            height: 180px;
+            margin: 20px auto;
+            background: linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%);
+            border-radius: 15px;
+            cursor: pointer;
+            user-select: none;
+            touch-action: none;
+            overflow: hidden;
+            box-shadow: inset 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .scratch-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                45deg,
+                #fbbc05,
+                #fbbc05 10px,
+                #ea4335 10px,
+                #ea4335 20px
+            );
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .reward-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--accent);
+            color: var(--dark);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        .prize-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            padding: 20px;
+        }
+        
+        .prize-amount {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin: 10px 0;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            opacity: 0;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(-100vh) rotate(360deg); }
+        }
+        
+        .action-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 20px;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(66, 133, 244, 0.3);
+            transition: all 0.3s;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px rgba(66, 133, 244, 0.4);
+        }
+        
+        .status-bar {
+            height: 10px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 5px;
+            margin: 20px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: white;
+            width: 0%;
+            border-radius: 5px;
+            transition: width 0.3s;
+        }
+        
+        .logo {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .instructions {
+            text-align: center;
+            padding: 15px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: rgba(0,0,0,0.7);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+            font-weight: normal;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .terms {
+            font-size: 0.7rem;
+            text-align: center;
+            padding: 0 20px 20px;
+            opacity: 0.6;
+        }
+    </style>
 </head>
 <body>
-  <div class="scratch-card-container">
-    <div class="prize-message" id="prizeMessage"></div>
-    <canvas id="scratchCanvas"></canvas>
-  </div>
-  <script src="scratch.js"></script>
+    <div class="card-container">
+        <div class="card" id="card">
+            <div class="card-face front">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <img src="https://placehold.co/40x40" alt="GPay logo icon with colorful G symbol" />
+                    </div>
+                    <div class="logo-text"> Rewards</div>
+                </div>
+                
+                <div class="instructions">
+                    Scratch the card to reveal your exclusive cashback reward!
+                </div>
+                
+                <div class="scratch-area" id="scratchArea">
+                    <canvas id="scratchCanvas"></canvas>
+                    <div class="scratch-overlay" id="scratchOverlay"></div>
+                </div>
+                
+                <div class="status-bar">
+                    <div class="progress" id="progressBar"></div>
+                </div>
+                
+                <div class="tooltip">
+                    <button class="action-btn" id="scratchBtn">Scratch to Win</button>
+                    <span class="tooltiptext">Use your finger or mouse to scratch the silver area and reveal your reward!</span>
+                </div>
+            </div>
+            
+            <div class="card-face back">
+               <div class="reward-badge" id="rewardBadge"></div>
+                
+                <div class="prize-display">
+                    <div>Your Cashback Reward:</div>
+                    <div class="prize-amount" id="prizeAmount"></div>
+                     <div id="prizeText"></div>
+                    <img src="https://placehold.co/200x200" alt="Celebration illustration with balloons and confetti" style="width: 150px; margin: 20px;" />
+                </div>
+                
+                <button class="action-btn" id="claimBtn">Claim Reward</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const card = document.getElementById('card');
+            const scratchArea = document.getElementById('scratchArea');
+            const scratchCanvas = document.getElementById('scratchCanvas');
+            const scratchOverlay = document.getElementById('scratchOverlay');
+            const progressBar = document.getElementById('progressBar');
+            const scratchBtn = document.getElementById('scratchBtn');
+            const claimBtn = document.getElementById('claimBtn');
+            const prizeAmount = document.getElementById('prizeAmount');
+            const prizeText = document.getElementById('prizeText');
+            const rewardBadge = document.getElementById('rewardBadge');
+            
+            const ctx = scratchCanvas.getContext('2d');
+            let isScratching = false;
+            let scratchedPercentage = 0;
+            
+            // Set canvas dimensions
+            scratchCanvas.width = scratchArea.offsetWidth;
+            scratchCanvas.height = scratchArea.offsetHeight;
+            
+            // Initialize canvas with gray background
+            ctx.fillStyle = '#e0e0e0';
+            ctx.fillRect(0, 0, scratchCanvas.width, scratchCanvas.height);
+            ctx.globalCompositeOperation = 'destination-out';
+            
+            // Prize probabilities
+            const prizes = [
+                { amount: '₹1200', percentage: '50%', probability: 0.5 },
+                { amount: '₹1400', percentage: '30%', probability: 0.3 },
+                { amount: '₹1600', percentage: '20%', probability: 0.2 }
+            ];
+            
+            let selectedPrize = null;
+            
+            // Select random prize based on probability
+            function selectPrize() {
+                const random = Math.random();
+                let cumulativeProbability = 0;
+                
+                for (const prize of prizes) {
+                    cumulativeProbability += prize.probability;
+                    if (random <= cumulativeProbability) {
+                        return prize;
+                    }
+                }
+                
+                return prizes[0]; // fallback
+            }
+            
+            // Start scratching
+            scratchArea.addEventListener('mousedown', startScratching);
+            scratchArea.addEventListener('touchstart', startScratching);
+            
+            // Continue scratching
+            scratchArea.addEventListener('mousemove', scratch);
+            scratchArea.addEventListener('touchmove', scratch);
+            
+            // Stop scratching
+            scratchArea.addEventListener('mouseup', stopScratching);
+            scratchArea.addEventListener('mouseleave', stopScratching);
+            scratchArea.addEventListener('touchend', stopScratching);
+            
+            function startScratching(e) {
+                isScratching = true;
+                scratch(e);
+                scratchOverlay.style.opacity = '1';
+            }
+            
+            function scratch(e) {
+                if (!isScratching) return;
+                
+                e.preventDefault();
+                
+                const rect = scratchArea.getBoundingClientRect();
+                const x = (e.clientX || e.touches[0].clientX) - rect.left;
+                const y = (e.clientY || e.touches[0].clientY) - rect.top;
+                
+                // Draw a circle to erase the overlay
+                ctx.beginPath();
+                ctx.arc(x, y, 20, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // Calculate scratched percentage
+                calculateScratchedPercentage();
+            }
+            
+            function stopScratching() {
+                if (!isScratching) return;
+                
+                isScratching = false;
+                scratchOverlay.style.opacity = '0';
+                
+                // If scratched enough, reveal prize
+                if (scratchedPercentage >= 60) {
+                    revealPrize();
+                }
+            }
+            
+            function calculateScratchedPercentage() {
+                const imageData = ctx.getImageData(0, 0, scratchCanvas.width, scratchCanvas.height);
+                const pixels = imageData.data;
+                let transparentPixels = 0;
+                
+                for (let i = 0; i < pixels.length; i += 4) {
+                    if (pixels[i+3] === 0) {
+                        transparentPixels++;
+                    }
+                }
+                
+                scratchedPercentage = Math.floor((transparentPixels / (scratchCanvas.width * scratchCanvas.height)) * 100);
+                progressBar.style.width = scratchedPercentage + '%';
+            }
+            
+            function revealPrize() {
+                selectedPrize = selectPrize();
+                
+                prizeAmount.textContent = selectedPrize.amount;
+               prizeText.textContent = `${selectedPrize.percentage} cashback`;
+                rewardBadge.textContent = `YOU WON!`;
+                
+                // Flip card after delay
+                setTimeout(() => {
+                    card.classList.add('scratched');
+                    createConfetti();
+                }, 500);
+            }
+            
+            function createConfetti() {
+                const colors = ['#4285f4', '#34a853', '#ea4335', '#fbbc05', '#ffffff'];
+                
+                for (let i = 0; i < 100; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.classList.add('confetti');
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.width = Math.random() * 10 + 5 + 'px';
+                    confetti.style.height = Math.random() * 10 + 5 + 'px';
+                    confetti.style.animation = `float ${Math.random() * 3 + 2}s linear forwards`;
+                    confetti.style.opacity = '1';
+                    
+                    document.body.appendChild(confetti);
+                    
+                    // Remove confetti after animation
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 5000);
+                }
+            }
+            
+            claimBtn.addEventListener('click', function() {
+                alert(`Congratulations! You've claimed your ${selectedPrize.amount} (${selectedPrize.percentage}) cashback reward.`);
+            });
+            
+            // Reset button for demo purposes
+            const resetBtn = document.createElement('button');
+            resetBtn.textContent = 'Reset Card';
+            resetBtn.style.position = 'fixed';
+            resetBtn.style.bottom = '20px';
+            resetBtn.style.right = '20px';
+            resetBtn.style.padding = '10px 20px';
+            resetBtn.style.backgroundColor = '#4285f4';
+            resetBtn.style.color = 'white';
+            resetBtn.style.border = 'none';
+            resetBtn.style.borderRadius = '5px';
+            resetBtn.style.cursor = 'pointer';
+            resetBtn.style.zIndex = '100';
+            resetBtn.style.boxShadow = '0 5px 15px rgba(0,0,0,0.2)';
+            
+            resetBtn.addEventListener('click', function() {
+                // Reset canvas
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.fillStyle = '#e0e0e0';
+                ctx.fillRect(0, 0, scratchCanvas.width, scratchCanvas.height);
+                ctx.globalCompositeOperation = 'destination-out';
+                
+                // Reset progress
+                progressBar.style.width = '0%';
+                scratchedPercentage = 0;
+                
+                // Flip card back
+                card.classList.remove('scratched');
+            });
+            
+            document.body.appendChild(resetBtn);
+        });
+    </script>
 </body>
 </html>
