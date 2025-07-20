@@ -292,7 +292,7 @@
                     <div>Your Cashback Reward:</div>
                     <div class="prize-amount" id="prizeAmount"></div>
                      <div id="prizeText"></div>
-                    <img src="https://placehold.co/200x200" alt="Celebration illustration with balloons and confetti" style="width: 150px; margin: 20px;" />
+                   <img src="bg.jpg" alt="Cashback Celebration" width="200" height="200" style="margin: 20px;" />
                 </div>
                 
                 <button class="action-btn" id="claimBtn">Claim Reward</button>
@@ -419,7 +419,7 @@
                 selectedPrize = selectPrize();
                 
                 prizeAmount.textContent = selectedPrize.amount;
-               prizeText.textContent = `${selectedPrize.percentage} cashback`;
+               prizeText.textContent = "Cashback";
                 rewardBadge.textContent = `YOU WON!`;
                 
                 // Flip card after delay
