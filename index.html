@@ -258,12 +258,13 @@
     <div class="card-container">
         <div class="card" id="card">
             <div class="card-face front">
-                <div class="logo">
-                    <div class="logo-icon">
-                        <img src="https://placehold.co/40x40" alt="GPay logo icon with colorful G symbol" />
-                    </div>
-                    <div class="logo-text"> Rewards</div>
-                </div>
+               <div class="logo">
+    <div class="logo-icon">
+        <img src="gift.jpg" alt="Gift icon" width="40" height="40" />
+    </div>
+    <div class="logo-text"> Rewards</div>
+</div>
+
                 
                 <div class="instructions">
                     Scratch the card to reveal your exclusive cashback reward!
@@ -326,11 +327,12 @@
             ctx.globalCompositeOperation = 'destination-out';
             
             // Prize probabilities
-            const prizes = [
-                { amount: '₹1200', percentage: '50%', probability: 0.5 },
-                { amount: '₹1400', percentage: '30%', probability: 0.3 },
-                { amount: '₹1600', percentage: '20%', probability: 0.2 }
-            ];
+           const prizes = [
+    { amount: '₹1200', percentage: '20%', probability: 0.2 },
+    { amount: '₹1400', percentage: '40%', probability: 0.4 },
+    { amount: '₹1600', percentage: '40%', probability: 0.4 }
+];
+
             
             let selectedPrize = null;
             
