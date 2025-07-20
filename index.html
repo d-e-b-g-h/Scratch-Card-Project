@@ -366,10 +366,11 @@
             scratchArea.addEventListener('touchend', stopScratching);
             
             function startScratching(e) {
-                isScratching = true;
-                scratch(e);
-                scratchOverlay.style.opacity = '1';
-            }
+    isScratching = true;
+    scratch(e);
+    scratchOverlay.style.opacity = '1';
+    resetBtn.disabled = true;
+}
             
             function scratch(e) {
                 if (!isScratching) return;
@@ -416,19 +417,19 @@
                 progressBar.style.width = scratchedPercentage + '%';
             }
             
-            function revealPrize() {
-                selectedPrize = selectPrize();
-                
-                prizeAmount.textContent = selectedPrize.amount;
-               prizeText.textContent = "Cashback";
-                rewardBadge.textContent = `YOU WON!`;
-                
-                // Flip card after delay
-                setTimeout(() => {
-                    card.classList.add('scratched');
-                    createConfetti();
-                }, 500);
-            }
+           function revealPrize() {
+    selectedPrize = selectPrize();
+
+    prizeAmount.textContent = selectedPrize.amount;
+    prizeText.textContent = "Cashback";
+    rewardBadge.textContent = `YOU WON!`;
+
+    setTimeout(() => {
+        card.classList.add('scratched');
+        createConfetti();
+    }, 500);
+    resetBtn.disabled = false;
+}
             
             function createConfetti() {
                 const colors = ['#4285f4', '#34a853', '#ea4335', '#fbbc05', '#ffffff'];
